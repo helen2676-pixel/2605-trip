@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 24.8.1.2 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="00:00:00"/>
+	<style type="text/css">
+		@page { size: 8.27in 11.69in; margin: 0.79in }
+		p { line-height: 115%; margin-bottom: 0.1in; background: transparent }
+		pre { background: transparent }
+		pre.western { font-family: "Liberation Mono", monospace; font-size: 10pt }
+		pre.cjk { font-family: "NSimSun", monospace; font-size: 10pt }
+		pre.ctl { font-family: "Liberation Mono", monospace; font-size: 10pt }
+	</style>
+</head>
+<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre class="western">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;ko&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, user-scalable=no&quot;&gt;
+&lt;title&gt;<font face="NSimSun, monospace"><span lang="zh-CN">규슈 가족여행 플래너</span></font>&lt;/title&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap&quot;/&gt;
+&lt;style&gt;
+/* <font face="NSimSun, monospace"><span lang="zh-CN">기존 스타일 그대로 유지 </span></font>(<font face="NSimSun, monospace"><span lang="zh-CN">생략</span></font>) */
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;script src=&quot;https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+// ═══════════════════════════════════════════
+//  <font face="NSimSun, monospace"><span lang="zh-CN">수정된 </span></font>Firebase <font face="NSimSun, monospace"><span lang="zh-CN">핵심 로직</span></font>
+// ═══════════════════════════════════════════
+
+async function initFb(cfg) {
+  try {
+    if (typeof firebase === 'undefined') return false;
+    
+    // 1. <font face="NSimSun, monospace"><span lang="zh-CN">기존 앱 인스턴스 정리 </span></font>(<font face="NSimSun, monospace"><span lang="zh-CN">중복 초기화 방지</span></font>)
+    if (firebase.apps.length &gt; 0) {
+      for (const app of firebase.apps) {
+        await app.delete();
+      }
+    }
+    
+    // 2. <font face="NSimSun, monospace"><span lang="zh-CN">초기화</span></font>
+    firebase.initializeApp(cfg);
+    db = firebase.firestore();
+    const ref = db.collection(&quot;kyushu2026&quot;).doc(&quot;shared&quot;);
+
+    // 3. <font face="NSimSun, monospace"><span lang="zh-CN">리스너 중복 방지</span></font>
+    if (fbUnsub) fbUnsub();
+
+    fbUnsub = ref.onSnapshot(snap =&gt; {
+      if (!snap.exists) return;
+      const data = snap.data();
+      if (data &amp;&amp; data.updatedBy !== CLIENT_ID) {
+        itinerary = data.itinerary;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(itinerary));
+        render();
+        showToast(&quot;🔄 <font face="NSimSun, monospace"><span lang="zh-CN">공유 일정 업데이트됨</span></font>&quot;);
+      }
+    });
+
+    fbReady = true;
+    console.log(&quot;Firebase Connected&quot;);
+    return true;
+  } catch(e) {
+    console.error(&quot;Firebase Init Error:&quot;, e);
+    return false;
+  }
+}
+// <font face="NSimSun, monospace"><span lang="zh-CN">나머지 스크립트 </span></font>(render, drag&amp;drop <font face="NSimSun, monospace"><span lang="zh-CN">등</span></font>) ...
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</body>
+</html>
